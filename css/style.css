@@ -1,0 +1,14 @@
+/* Các định dạng tùy chỉnh cho dự án */
+.product-img { 
+    height: 200px; 
+    object-fit: contain; 
+    padding: 10px; 
+}
+
+.loading { 
+    display: none; 
+    text-align: center; 
+    padding: 20px; 
+}
+
+/* Bạn có thể thêm các CSS khác vào đây sau này nếu cần */
