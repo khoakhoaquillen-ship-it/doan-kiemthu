@@ -25,15 +25,15 @@ function showToast(message, type = 'success') {
     setTimeout(() => { if(newToast) newToast.remove(); }, 3000);
 }
 
-// --- KHỞI TẠO API SẢN PHẨM ---
+// --- KHỞI TẠO API SẢN PHẨM (ĐÃ SỬA SANG DUMMYJSON) ---
 async function fetchCategories() {
     try {
-        const res = await fetch('https://fakestoreapi.com/products/categories');
+        const res = await fetch('https://dummyjson.com/products/categories');
         const categories = await res.json();
         const catList = document.getElementById('categoryList');
-        categories.forEach(cat => {
-            let tenVN = cat === "electronics" ? "Điện tử" : (cat === "jewelery" ? "Trang sức" : (cat === "men's clothing" ? "Thời trang Nam" : "Thời trang Nữ"));
-            catList.innerHTML += `<li class="nav-item"><a class="nav-link text-capitalize" href="#" onclick="fetchProductsByCategory('${cat}')">${tenVN}</a></li>`;
+        // DummyJSON trả về mảng Object. Mình lấy 4 danh mục đầu tiên cho gọn UI
+        categories.slice(0, 4).forEach(cat => {
+            catList.innerHTML += `<li class="nav-item"><a class="nav-link text-capitalize" href="#" onclick="fetchProductsByCategory('${cat.slug}')">${cat.name}</a></li>`;
         });
     } catch (e) { console.log("Lỗi danh mục"); }
 }
@@ -42,9 +42,10 @@ async function fetchProductsFromAPI() {
     document.getElementById('loadingIndicator').style.display = 'block';
     document.getElementById('productList').innerHTML = '';
     try {
-        const response = await fetch('https://fakestoreapi.com/products?limit=16');
+        const response = await fetch('https://dummyjson.com/products?limit=16');
         const data = await response.json();
-        formatProductData(data);
+        // SỬA Ở ĐÂY: Phải gọi data.products vì cấu trúc DummyJSON khác FakeStore
+        formatProductData(data.products); 
     } catch (error) {
         document.getElementById('productList').innerHTML = '<div class="col-12 text-center text-danger h4">Lỗi Server!</div>';
     } finally { document.getElementById('loadingIndicator').style.display = 'none'; }
@@ -54,9 +55,10 @@ async function fetchProductsByCategory(category) {
     document.getElementById('loadingIndicator').style.display = 'block';
     document.getElementById('productList').innerHTML = '';
     try {
-        const response = await fetch(`https://fakestoreapi.com/products/category/${category}`);
+        const response = await fetch(`https://dummyjson.com/products/category/${category}`);
         const data = await response.json();
-        formatProductData(data);
+        // SỬA Ở ĐÂY: Truyền data.products
+        formatProductData(data.products);
     } catch (error) { console.error(error); } 
     finally { document.getElementById('loadingIndicator').style.display = 'none'; }
 }
@@ -66,7 +68,8 @@ function formatProductData(data) {
         id: item.id,
         name: item.title,
         price: Math.round(item.price * 25000), 
-        img: item.image,
+        // SỬA Ở ĐÂY: Đổi item.image thành item.thumbnail
+        img: item.thumbnail, 
         category: item.category,
         stock: Math.floor(Math.random() * 8) + 2 
     }));
@@ -290,7 +293,7 @@ async function processCheckout() {
     } catch (e) { showToast("Lỗi Database!", "danger"); }
 }
 
-// --- XÁC THỰC & ADMIN ---
+// --- XÁC THỰC & ADMIN (Giữ nguyên FakeStoreAPI để pass các file Test) ---
 async function handleLogin(e) {
     e.preventDefault();
     const u = document.getElementById('username').value;
